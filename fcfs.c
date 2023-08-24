@@ -37,3 +37,4 @@ int n = sizeof processes / sizeof processes[0];
 int burst_time[] = {2,4,6};
 findavgTime(processes, n, burst_time);
 return 0;
+}

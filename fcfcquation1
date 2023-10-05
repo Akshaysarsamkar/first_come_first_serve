@@ -1,0 +1,90 @@
+Write the simulation program using FCFS. The arrival time and first CPU bursts of different jobs should be input to the system. Assume the
+fixed I/O waiting time (2 units). The next CPU burstshould be generated using random function. The output should give the Gantt chart,
+Turnaround Time and Waiting time for each process and average times.
+
+
+#include<stdio.h>
+#include<stdlib.h>
+
+struct process{
+   int at;
+   int bt;
+   int ct;
+   int tat;
+   int wt;
+};
+
+void fcfs(struct process p[],int n)
+{
+     int ct = 0,i;
+     for(i=0;i<n;i++){
+         if(ct <  p[i].at)
+         {
+             ct = p[i].at;
+         }
+         p[i].ct = ct + p[i].bt;
+         p[i].tat = p[i].ct - p[i].at;
+         p[i].wt = p[i].tat - p[i].bt;
+         ct = p[i].ct+2;
+      }
+}
+
+int main(){
+
+  int n,i;
+  printf("Enter the number of process:");
+  scanf("%d",&n);
+  
+  struct process p[n];
+  printf("Enter the arrival time and brust time for each process:");
+  for(i=0;i<n;i++)
+  {
+      scanf("%d %d",&p[i].at,&p[i].bt);
+  }
+  
+  
+  //sort process by arrival time 
+  for(i = 0;i<n-1;i++){
+        for(int j=0;j<n-1;j++){
+         if(p[j].at > p[j+1].at){
+              struct process temp;
+              temp = p[j];
+              p[j] = p[j+1];
+              p[j+1] = temp; 
+           }
+         }
+     }
+     
+     fcfs(p,n);
+     
+     printf("\n\nGantt chart\n");
+     int ct =0;
+     for(int i=0;i<n;i++){
+        printf("%d-%d:p%d ",ct,p[i].ct,i+1);
+        ct = p[i].ct +2;
+      }
+      
+     printf("\n\nturnaround time\n");
+     double atat = 0;
+     for(int i=0;i<n;i++){
+       printf("p%d %d ",i+1,p[i].tat);
+       atat +=p[i].tat;
+     }
+     atat/=n;
+     
+     printf("\n\nWriting times: \n");
+     double awt = 0;
+     for(int i=0;i<n;i++)
+     {
+        printf("P%d:%d ",i+1,p[i].wt);
+        awt =+ p[i].wt;
+       
+     }
+      awt /= n;
+      
+      printf("\n\nAverage tat time is:%.2lf\n",atat);
+      printf("\n\nAverage waiting time is:%.2lf\n",awt);
+       
+       return 0;
+     
+}

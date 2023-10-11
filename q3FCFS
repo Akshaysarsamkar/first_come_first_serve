@@ -1,0 +1,90 @@
+ /* Write the simulation program using FCFS. The arrival time and first CPU bursts of different jobs should be input to the system.
+Assume the fixed I/O waiting time (2 units). The next CPU burst should be generated using random function. The output should give 
+the Gantt chart, Turnaround Time and Waiting time for each process and average times. */
+
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Process {
+    int arrival_time;
+    int burst_time;
+    int waiting_time;
+    int turnaround_time;
+    int completion_time;
+};
+
+void calculateWaitingTime(struct Process processes[], int n) {
+    processes[0].waiting_time = 0;
+    for (int i = 1; i < n; i++) {
+        processes[i].waiting_time = processes[i-1].burst_time + processes[i-1].waiting_time;
+    }
+}
+
+void calculateTurnaroundTime(struct Process processes[], int n) {
+    for (int i = 0; i < n; i++) {
+        processes[i].turnaround_time = processes[i].waiting_time + processes[i].burst_time;
+    }
+}
+
+void calculateCompletionTime(struct Process processes[], int n) {
+    processes[0].completion_time = processes[0].arrival_time + processes[0].burst_time;
+    for (int i = 1; i < n; i++) {
+        processes[i].completion_time = processes[i-1].completion_time + processes[i].burst_time;
+    }
+}
+
+void displayGanttChart(struct Process processes[], int n) {
+    printf("\nGantt Chart:\n");
+    for (int i = 0; i < n; i++) {
+        printf("|  P%d   ", i);
+    }
+    printf("|\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d      ", processes[i].completion_time);
+    }
+    printf("\n");
+}
+
+void displayResult(struct Process processes[], int n) {
+    int total_waiting_time = 0;
+    int total_turnaround_time = 0;
+    printf("\nProcess\tArrival Time\tBurst Time\tCompletion Time\tWaiting Time\tTurnaround Time\n");
+    for (int i = 0; i < n; i++) {
+        printf("P%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", i, processes[i].arrival_time,
+               processes[i].burst_time, processes[i].completion_time,
+               processes[i].waiting_time, processes[i].turnaround_time);
+        total_waiting_time += processes[i].waiting_time;
+        total_turnaround_time += processes[i].turnaround_time;
+    }
+    printf("\nAverage Waiting Time: %.2f", (float)total_waiting_time/n);
+    printf("\nAverage Turnaround Time: %.2f\n", (float)total_turnaround_time/n);
+}
+
+int main() {
+    int n;
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    struct Process processes[n];
+    for (int i = 0; i < n; i++) {
+        printf("\nEnter arrival time and burst time for process P%d: ", i);
+        scanf("%d %d", &processes[i].arrival_time, &processes[i].burst_time);
+    }
+
+    // Calculate completion time
+    calculateCompletionTime(processes, n);
+
+    // Calculate waiting time
+    calculateWaitingTime(processes, n);
+
+    // Calculate turnaround time
+    calculateTurnaroundTime(processes, n);
+
+    // Display Gantt chart
+    displayGanttChart(processes, n);
+
+    // Display results
+    displayResult(processes, n);
+
+    return 0;
+}

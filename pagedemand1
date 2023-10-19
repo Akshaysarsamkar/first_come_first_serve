@@ -1,0 +1,68 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define NUM_FRAMES 3\ // Number of frames in main memory
+
+// Structure to represent a page
+typedef struct {
+    int pageNumber;
+    int frameNumber;
+} Page;
+
+// Function to initialize page table
+void initializePageTable(Page *pageTable, int numPages) {
+    for (int i = 0; i < numPages; i++) {
+        pageTable[i].pageNumber = -1;
+        pageTable[i].frameNumber = -1;
+    }
+}
+
+// Function to display page table
+void displayPageTable(Page *pageTable, int numPages) {
+    printf("Page Number | Frame Number\n");
+    for (int i = 0; i < numPages; i++) {
+        if (pageTable[i].pageNumber != -1) {
+            printf("%11d | %13d\n", pageTable[i].pageNumber, pageTable[i].frameNumber);
+        }
+    }
+}
+
+// Function to perform demand paging using LRU algorithm
+void demandPaging(Page *pageTable, int numPages, int page) {
+    // Check if the page is already in memory
+    for (int i = 0; i < numPages; i++) {
+        if (pageTable[i].pageNumber == page) {
+            // Page is already in memory, update its timestamp
+            return;
+        }
+    }
+
+    // Page is not in memory, find LRU page and replace it
+    int lruIndex = 0;
+    for (int i = 1; i < numPages; i++) {
+        if (pageTable[i].frameNumber < pageTable[lruIndex].frameNumber) {
+            lruIndex = i;
+        }
+    }
+
+    // Replace the LRU page
+    pageTable[lruIndex].pageNumber = page;
+    pageTable[lruIndex].frameNumber = numPages - 1;
+}
+
+int main() {
+    int numPages = 5; // Number of pages
+    Page pageTable[numPages];
+
+    initializePageTable(pageTable, numPages);
+
+    int pageRequests[] = {12,15,12,18,6,8,11,12,19,12,6,8,12,15,19,8}; // Page requests
+
+    for (int i = 0; i < sizeof(pageRequests)/sizeof(pageRequests[0]); i++) {
+        demandPaging(pageTable, numPages, pageRequests[i]);
+        displayPageTable(pageTable, numPages);
+        printf("\n");
+    }
+
+    return 0;
+}

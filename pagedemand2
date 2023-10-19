@@ -1,0 +1,74 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+#define MAX_FRAMES 3
+#define MAX_PAGES 16
+
+int frames[MAX_FRAMES];
+int pageQueue[MAX_PAGES];
+int pageFaults = 0;
+
+void initFrames() {
+    for (int i = 0; i < MAX_FRAMES; i++) {
+        frames[i] = -1; // -1 indicates an empty frame
+    }
+}
+
+void displayFrames() {
+    for (int i = 0; i < MAX_FRAMES; i++) {
+        if (frames[i] == -1) {
+            printf("- ");
+        } else {
+            printf("%d ", frames[i]);
+        }
+    }
+    printf("\n");
+}
+
+bool isPageInFrames(int page) {
+    for (int i = 0; i < MAX_FRAMES; i++) {
+        if (frames[i] == page) {
+            return true;
+        }
+    }
+    return false;
+}
+
+int getLRUFrame() {
+    return frames[MAX_FRAMES - 1];
+}
+
+void updatePageQueue(int page) {
+    for (int i = 0; i < MAX_PAGES - 1; i++) {
+        pageQueue[i] = pageQueue[i+1];
+    }
+    pageQueue[MAX_PAGES - 1] = page;
+}
+
+void handlePageFault(int page) {
+    pageFaults++;
+    int lruFrame = getLRUFrame();
+    for (int i = 0; i < MAX_FRAMES; i++) {
+        if (frames[i] == lruFrame) {
+            frames[i] = page;
+        }
+    }
+    updatePageQueue(page);
+}
+
+int main() {
+    initFrames();
+    int pages[MAX_PAGES] =  {12,15,12,18,6,8,11,12,19,12,6,8,12,15,19,8};  // Example page references
+
+    for (int i = 0; i < MAX_PAGES; i++) {
+        int page = pages[i];
+        if (!isPageInFrames(page)) {
+            handlePageFault(page);
+        }
+        displayFrames();
+    }
+
+    printf("Total Page Faults: %d\n", pageFaults);
+
+    return 0;
+}
